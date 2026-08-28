@@ -1,0 +1,85 @@
+services:
+  # -------------------------------------------------------------
+  # 1. MESSAGE BROKER: RabbitMQ con Panel Web de Administración
+  # -------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"     # Protocolo AMQP (tráfico de mensajes)
+      - "15672:15672"   # Panel Web UI (http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # -------------------------------------------------------------
+  # 2. MICROSERVICIO PRODUCTOR: Orders API (FastAPI)
+  # -------------------------------------------------------------
+  orders_api:
+    build:
+      context: ./orders_api
+      dockerfile: Dockerfile
+    container_name: orders_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"     # Swagger UI: http://localhost:8000/docs
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 3. MICROSERVICIO CONSUMIDOR/PRODUCTOR: Order Processor (Paso 1)
+  # -------------------------------------------------------------
+  processor:
+    build:
+      context: ./processor
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # -------------------------------------------------------------
+  # 4. MICROSERVICIO CONSUMIDOR FINAL: Notification Worker (Paso 2)
+  # -------------------------------------------------------------
+  notifier:
+    build:
+      context: ./notifier
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+# -------------------------------------------------------------
+# VOLÚMENES PERSISTENTES
+# -------------------------------------------------------------
+volumes:
+  rabbitmq_data:
+    name: practica22_rabbitmq_data
