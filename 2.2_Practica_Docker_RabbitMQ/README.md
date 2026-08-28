@@ -63,7 +63,6 @@ Aprender los fundamentos de la contenerización y el desacoplamiento mediante **
 2.2_Practica_Docker_RabbitMQ/
 ├── docker-compose.yml          # Orquestación declarativa de los 4 servicios
 ├── .dockerignore               # Archivos excluidos del build en Docker
-├── .env.example                # Variables de entorno de referencia
 ├── test_orders.sh              # Script interactivo de generación de pedidos aleatorios
 ├── README.md                   # Esta guía práctica
 │
