@@ -1,0 +1,73 @@
+services:
+  # -------------------------------------------------------------
+  # 1. MICROSERVICIO RESTful: REST API, OpenAPI/Swagger y JWT
+  # -------------------------------------------------------------
+  rest_service:
+    build:
+      context: ./rest_service
+      dockerfile: Dockerfile
+    container_name: campus_rest_api
+    restart: unless-stopped
+    ports:
+      - "8001:8001"     # Swagger UI: http://localhost:8001/docs
+    environment:
+      - JWT_SECRET=super-secreto-uadec-desarrollo-2026
+      - PYTHONUNBUFFERED=1
+    networks:
+      - campus_net
+
+  # -------------------------------------------------------------
+  # 2. MICROSERVICIO GRAPHQL: Consultas a la Carta y GraphiQL
+  # -------------------------------------------------------------
+  graphql_service:
+    build:
+      context: ./graphql_service
+      dockerfile: Dockerfile
+    container_name: campus_graphql_api
+    restart: unless-stopped
+    ports:
+      - "8002:8002"     # GraphiQL UI: http://localhost:8002/graphql
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - campus_net
+
+  # -------------------------------------------------------------
+  # 3. MICROSERVICIO gRPC: Comunicación Binaria Backend-to-Backend
+  # -------------------------------------------------------------
+  grpc_service:
+    build:
+      context: ./grpc_service
+      dockerfile: Dockerfile
+    container_name: campus_grpc_analytics
+    restart: unless-stopped
+    ports:
+      - "50051:50051"   # Puerto gRPC (HTTP/2 + Protobuf)
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - campus_net
+
+  # -------------------------------------------------------------
+  # 4. MICROSERVICIO TIEMPO REAL: WebSockets, SSE y Webhooks
+  # -------------------------------------------------------------
+  realtime_service:
+    build:
+      context: ./realtime_service
+      dockerfile: Dockerfile
+    container_name: campus_realtime_api
+    restart: unless-stopped
+    ports:
+      - "8003:8003"     # Dashboard Web: http://localhost:8003
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - campus_net
+
+# -------------------------------------------------------------
+# RED PRIVADA VIRTUAL DE MICROSERVICIOS
+# -------------------------------------------------------------
+networks:
+  campus_net:
+    name: campus_api_network
+    driver: bridge

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package analytics;
+
+// =============================================================================
+// CONTRATO PROTOBUF (.proto)
+// =============================================================================
+// Define las estructuras binarias y los métodos RPC con tipos estrictos.
+// Cada campo tiene un número de etiqueta (1, 2, 3...) que se codifica
+// directamente en binario, ahorrando el envío de strings como en JSON.
+// =============================================================================
+
+// Servicio gRPC de Alta Velocidad para Comunicación Backend-to-Backend
+service AnalyticsService {
+  // 1. RPC Unario: Petición y Respuesta clásica ultrarrápida (<1ms)
+  rpc GetStudentMetrics (StudentMetricsRequest) returns (StudentMetricsResponse);
+
+  // 2. RPC Server Streaming: Transmisión en vivo de telemetría de servidores/campus
+  rpc StreamCampusTelemetry (TelemetryRequest) returns (stream TelemetryEvent);
+}
+
+// Mensaje de solicitud de métricas
+message StudentMetricsRequest {
+  int32 matricula = 1;
+}
+
+// Mensaje de respuesta con métricas procesadas
+message StudentMetricsResponse {
+  int32 matricula = 1;
+  string nombre = 2;
+  float promedio = 3;
+  int32 materias_aprobadas = 4;
+  int32 materias_reprobadas = 5;
+  string nivel_desempeno = 6;
+  int64 latencia_calculo_microsegundos = 7;
+}
+
+// Mensaje de solicitud para el flujo continuo
+message TelemetryRequest {
+  string campus_id = 1;
+  int32 total_eventos = 2;
+  int32 intervalo_ms = 3;
+}
+
+// Evento transmitido en vivo por el servidor
+message TelemetryEvent {
+  int32 sequence_id = 1;
+  string sensor = 2;
+  float valor = 3;
+  string unidad = 4;
+  string estado = 5;
+  string timestamp = 6;
+}
