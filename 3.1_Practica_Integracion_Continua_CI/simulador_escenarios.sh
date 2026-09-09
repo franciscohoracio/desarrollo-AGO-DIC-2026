@@ -104,29 +104,62 @@ while true; do
             echo ""
             restaurar_originales
 
-            # Inyectar módulo gigante sin pruebas
+            # Inyectar funciones con formato y linter impecables, pero sin pruebas unitarias
             cat << 'EOF' >> app/school_service.py
 
-def modulo_sin_probar_1(x):
-    if x > 10:
-        return x * 2
-    return x - 2
 
-def modulo_sin_probar_2(nombre):
-    cadena = f"Hola {nombre}"
-    lista = [c for c in cadena]
-    return "".join(reversed(lista))
+def calcular_estadisticas_avanzadas(datos_alumnos: list) -> dict:
+    """Función de analítica institucional agregada sin pruebas unitarias."""
+    total = len(datos_alumnos)
+    if total == 0:
+        return {"media": 0.0, "mediana": 0.0, "moda": 0.0, "desviacion": 0.0}
 
-def modulo_sin_probar_3(datos):
-    res = {}
-    for k, v in enumerate(datos):
-        if k % 2 == 0:
-            res[k] = v * 10
+    suma = 0.0
+    for elemento in datos_alumnos:
+        if elemento > 0:
+            suma += elemento
         else:
-            res[k] = v / 2
-    return res
+            suma += 0.0
+
+    promedio = suma / total
+    varianza = 0.0
+    for elemento in datos_alumnos:
+        diferencia = elemento - promedio
+        varianza += diferencia**2
+
+    desviacion = (varianza / total) ** 0.5
+    return {
+        "media": round(promedio, 2),
+        "varianza": round(varianza, 2),
+        "desviacion": round(desviacion, 2),
+        "total": total,
+    }
+
+
+def generar_reporte_financiero_patronatos(cuotas: list) -> dict:
+    """Función de tesorería institucional sin pruebas unitarias."""
+    ingresos = 0.0
+    descuentos = 0.0
+    for item in cuotas:
+        monto = item.get("monto", 0.0)
+        descuento = item.get("descuento", 0.0)
+        ingresos += monto
+        descuentos += descuento
+
+    neto = ingresos - descuentos
+    factor = 1.0
+    if neto > 100000:
+        factor = 0.95
+    elif neto > 50000:
+        factor = 0.98
+
+    return {
+        "ingresos_brutos": ingresos,
+        "descuentos_totales": descuentos,
+        "ingresos_netos": neto * factor,
+    }
 EOF
-            echo -e "${RED}Funciones sin pruebas inyectadas.${NC} Ejecutando CI para medir cobertura..."
+            echo -e "${RED}Código nuevo sin pruebas unitarias inyectado.${NC} Ejecutando CI..."
             echo ""
             ./local_ci.sh || true
             echo -e "${YELLOW}💡 ¿Qué aprendimos?: Aunque las pruebas existentes pasaron, la cobertura global"

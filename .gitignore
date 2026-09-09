@@ -50,3 +50,4 @@ ehthumbs.db
 .coverage.*
 htmlcov/
 .tox/
+.backup/
