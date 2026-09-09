@@ -1,0 +1,30 @@
+services:
+  # ---------------------------------------------------------------------------
+  # 1. API Escolar en Vivo (FastAPI + Swagger UI en http://localhost:8000/docs)
+  # ---------------------------------------------------------------------------
+  school_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: school_api_ci_demo
+    ports:
+      - "8000:8000"
+    environment:
+      - ACADEMIC_AUDIT_KEY=UAdeC-CI-SECRET-KEY-2026
+    volumes:
+      - .:/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # ---------------------------------------------------------------------------
+  # 2. Runner de CI en Contenedor (Ejecuta linters, pruebas y cobertura)
+  # ---------------------------------------------------------------------------
+  ci_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: local_ci_runner
+    environment:
+      - ACADEMIC_AUDIT_KEY=UAdeC-CI-SECRET-KEY-2026
+    volumes:
+      - .:/app
+    command: ["bash", "-c", "pytest -v --cov=app --cov-report=term-missing --cov-fail-under=85 && flake8 app tests && black --check app tests"]
