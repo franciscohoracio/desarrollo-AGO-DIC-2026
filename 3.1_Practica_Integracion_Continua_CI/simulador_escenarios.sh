@@ -172,7 +172,7 @@ EOF
             echo -e "Veamos qué ocurre si ejecutamos el pipeline SIN el secreto configurado:"
             echo ""
             restaurar_originales
-            ACADEMIC_AUDIT_KEY="" ./local_ci.sh || true
+            ./local_ci.sh --sin-secreto || true
             echo -e "${YELLOW}💡 ¿Qué aprendimos?: Sin la variable inyectada, el pipeline rechaza el despliegue."
             echo -e "   Al configurarla en Settings -> Secrets de GitHub, se inyecta de forma cifrada.${NC}\n"
             ;;

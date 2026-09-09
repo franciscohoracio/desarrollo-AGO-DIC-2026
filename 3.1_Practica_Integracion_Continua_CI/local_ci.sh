@@ -73,7 +73,11 @@ ejecutar_paso() {
 imprimir_banner
 
 # Inyectar secreto simulado si no existe en el entorno
-export ACADEMIC_AUDIT_KEY="${ACADEMIC_AUDIT_KEY:-UAdeC-CI-SECRET-KEY-2026}"
+if [ "$1" = "--sin-secreto" ] || [ "$1" = "--no-secret" ] || [ "$SIMULAR_SIN_SECRETO" = "1" ] || [ "$ACADEMIC_AUDIT_KEY" = "SIN_SECRETO" ]; then
+    export ACADEMIC_AUDIT_KEY=""
+else
+    export ACADEMIC_AUDIT_KEY="${ACADEMIC_AUDIT_KEY:-UAdeC-CI-SECRET-KEY-2026}"
+fi
 
 echo -e "${BOLD}Iniciando banda de ensamblaje y control de calidad...${NC}\n"
 
@@ -94,8 +98,9 @@ ejecutar_paso 4 "Verificación de Secretos (Simulación de GitHub Secrets)" \
     "$PYTHON_BIN -c '
 import os, sys
 token = os.environ.get(\"ACADEMIC_AUDIT_KEY\")
-if not token:
-    print(\"  ❌ ERROR: El secreto ACADEMIC_AUDIT_KEY no está presente en el entorno.\")
+if not token or not token.strip():
+    print(\"  ❌ ERROR: El secreto ACADEMIC_AUDIT_KEY no está configurado en el entorno.\")
+    print(\"     Recuerda: En GitHub Actions se debe configurar en Settings -> Secrets.\")
     sys.exit(1)
 print(f\"  ✅ Secreto inyectado en memoria segura: [***{token[-4:]}]\")
 print(\"  (Nota didáctica: GitHub censura secretos en consola para evitar filtraciones)\")
