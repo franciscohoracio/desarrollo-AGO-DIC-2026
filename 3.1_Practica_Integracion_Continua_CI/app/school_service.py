@@ -84,7 +84,7 @@ def determinar_estatus_beca(
             "motivo": "Promedio menor al mínimo requerido (80.0).",
         }
 
-    if promedio >= 70.0:  # ⚠ BUG INYECTADO: Promedio regalado
+    if promedio >= 95.0:
         return {
             "elegible": True,
             "porcentaje_beca": 100,
